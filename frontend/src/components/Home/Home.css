@@ -1,0 +1,4 @@
+/* Home Component Styles */
+.home {
+  padding-top: 80px; /* Add padding to account for fixed navbar */
+}
