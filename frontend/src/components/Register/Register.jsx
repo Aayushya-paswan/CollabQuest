@@ -1,149 +1,298 @@
 import React, { useState } from 'react';
+import { FaUsers, FaUser, FaLock, FaEye, FaEyeSlash, FaArrowRight, FaEnvelope, FaGraduationCap, FaCalendarAlt } from 'react-icons/fa';
 import './Register.css';
-import { FaUpload } from 'react-icons/fa';
-const ProfilePage = () => {
-  const [imagePreview, setImagePreview] = useState('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&h=500&q=80');
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/Index';
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setImagePreview(imageUrl);
+const Register = () => {
+  const { register } = useUser();
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    name: '',
+    department: '',
+    year: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setError(''); // Clear error on input change
+  };
+
+  const validateForm = () => {
+    if (!formData.username.trim()) {
+      setError('Username is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    if (!formData.password) {
+      setError('Password is required');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+    if (!formData.name.trim()) {
+      setError('Full name is required');
+      return false;
+    }
+    if (!formData.department.trim()) {
+      setError('Department is required');
+      return false;
+    }
+    if (!formData.year || formData.year < 1 || formData.year > 5) {
+      setError('Please enter a valid year (1-5)');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const userData = {
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        name: formData.name.trim(),
+        department: formData.department.trim(),
+        year: parseInt(formData.year)
+      };
+      
+      await register(userData);
+      // Registration successful - redirect to home
+      navigate('/');
+    } catch (error) {
+      setError(error.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSave = (fieldName) => {
-    alert(`Saved ${fieldName}!`);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
     <div className="page-wrapper">
-      <div className="profile-card">
-        <h1 className="title">Welcome to the Profile Page</h1>
-        {/* Profile Image - Full Width */}
-        <div className="profile-upload">
-          <label htmlFor="profileInput">
-            <img 
-              src={imagePreview} 
-              className="profile-img" 
-              alt="Profile preview" 
+      <div className="register-card">
+        
+        {/* Brand Header */}
+        <div className="brand-header">
+          <div className="logo-circle">
+            <FaUsers />
+          </div>
+          <h1 className="brand">Collab Quest</h1>
+          <p className="tagline">Create your account</p>
+        </div>
+
+        {/* Register Form */}
+        <form className="register-form" onSubmit={handleSubmit}>
+          <div className="input-group">
+            <div className="input-icon">
+              <FaUser />
+            </div>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleInputChange}
+              required
+              disabled={isLoading}
             />
-          </label>
-          <input 
-            type="file" 
-            id="profileInput" 
-            accept="image/*" 
-            hidden 
-            onChange={handleImageChange}
-          />
-          <p className="hint-text">Click on the image to upload your profile picture</p>
-        </div>
-
-        {/* GRID LAYOUT START */}
-        <div className="form-content-grid">
-          
-          {/* LEFT COLUMN */}
-          <div className="grid-column-left" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
-            {/* Basic Info Section */}
-            <section className="section">
-              <h2 className="section-title">Basic Information</h2>
-
-              <div className="form-row">
-                <label>Full Name</label>
-                <div className="input-row">
-                  <input className="c" type="text" placeholder="Enter your name" />
-                  <button onClick={() => handleSave("Name")}>Save</button>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <label>College Name</label>
-                <div className="input-row">
-                  <input className="a" type="text" placeholder="Enter your college" />
-                  <button onClick={() => handleSave("College")}>Save</button>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <label>Current Year</label>
-                <div className="input-row">
-                  <input className="y" type="number" placeholder="Enter your year (e.g. 2)" />
-                  <button onClick={() => handleSave("Year")}>Save</button>
-                </div>
-              </div>
-            </section>
-
-            {/* Team Info Section */}
-            <section className="section">
-              <h2 className="section-title">Team Requirements</h2>
-
-              <div className="form-row">
-                <label>Team members required</label>
-                <div className="input-row">
-                  <input type="number" placeholder="Enter number of members needed" />
-                  <button onClick={() => handleSave("Team Req")}>Save</button>
-                </div>
-              </div>
-            </section>
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div className="grid-column-right" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
-            {/* Skills & Project Section */}
-            <section className="section">
-              <h2 className="section-title">Skills & Project</h2>
-
-              <div className="form-row">
-                <label>Skills</label>
-                <div className="input-row">
-                  <input type="text" placeholder="e.g. React, Node.js, DSA" />
-                  <button onClick={() => handleSave("Skills")}>Save</button>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <label>Project Name</label>
-                <div className="input-row">
-                  <input type="text" placeholder="Enter name of the project" />
-                  <button onClick={() => handleSave("Project")}>Save</button>
-                </div>
-              </div>
-            </section>
-
-            {/* Links Section */}
-            <section className="section">
-              <h2 className="section-title">Profiles & Links</h2>
-
-              <div className="form-row">
-                <label>GitHub Profile</label>
-                <div className="input-row">
-                  <input type="text" placeholder="Paste your GitHub profile link" />
-                  <button onClick={() => handleSave("GitHub")}>Save</button>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <label>LinkedIn Profile</label>
-                <div className="input-row">
-                  <input type="text" placeholder="Paste your LinkedIn profile link" />
-                  <button onClick={() => handleSave("LinkedIn")}>Save</button>
-                </div>
-              </div>
-            </section>
+          <div className="input-group">
+            <div className="input-icon">
+              <FaEnvelope />
+            </div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              disabled={isLoading}
+            />
           </div>
 
-        </div> 
-        {/* GRID LAYOUT END */}
+          <div className="input-group">
+            <div className="input-icon">
+              <FaUser />
+            </div>
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
 
-        <div className="footer">
-          Made by QuadraTechs
-        </div>
+          <div className="input-group">
+            <div className="input-icon">
+              <FaGraduationCap />
+            </div>
+            <input
+              type="text"
+              name="department"
+              placeholder="Department (e.g., Computer Science)"
+              value={formData.department}
+              onChange={handleInputChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
 
+          <div className="input-group">
+            <div className="input-icon">
+              <FaCalendarAlt />
+            </div>
+            <input
+              type="number"
+              name="year"
+              placeholder="Current Year (1-5)"
+              value={formData.year}
+              onChange={handleInputChange}
+              min="1"
+              max="5"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="input-group">
+            <div className="input-icon">
+              <FaLock />
+            </div>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              disabled={isLoading}
+            />
+            <button 
+              type="button" 
+              className="password-toggle"
+              onClick={togglePasswordVisibility}
+              disabled={isLoading}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
+          <div className="input-group">
+            <div className="input-icon">
+              <FaLock />
+            </div>
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              required
+              disabled={isLoading}
+            />
+            <button 
+              type="button" 
+              className="password-toggle"
+              onClick={toggleConfirmPasswordVisibility}
+              disabled={isLoading}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
+          {error && (
+            <div style={{ 
+              color: '#ef4444', 
+              fontSize: '14px', 
+              marginBottom: '15px',
+              textAlign: 'center',
+              padding: '10px',
+              backgroundColor: '#fee2e2',
+              borderRadius: '8px'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            className="register-btn"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i>
+                <span>Creating account...</span>
+              </>
+            ) : (
+              <>
+                <span>Create Account</span>
+                <FaArrowRight />
+              </>
+            )}
+          </button>
+
+          <p className="footer-text">
+            Already have an account? 
+            <Link to="/login" className="create-account-link">
+              Sign in
+            </Link>
+          </p>
+        </form>
       </div>
+
+      {/* Background decorative elements */}
+      <div className="bg-circle circle-1"></div>
+      <div className="bg-circle circle-2"></div>
+      <div className="bg-circle circle-3"></div>
     </div>
   );
 };
 
-export default ProfilePage;
+export default Register;
