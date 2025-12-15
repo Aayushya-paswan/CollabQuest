@@ -3,9 +3,13 @@ import { FaUsers, FaUser, FaLock, FaEye, FaEyeSlash, FaArrowRight, FaEnvelope, F
 import './Register.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/Index';
+import axios from "axios";
+
+const API = axios.create({
+  baseURL: "http://localhost:8000",
+});
 
 const Register = () => {
-  const { register } = useUser();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -71,34 +75,45 @@ const Register = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!validateForm()) {
-      return;
-    }
+  e.preventDefault();
+  setError('');
 
-    setIsLoading(true);
-    
-    try {
-      const userData = {
-        username: formData.username.trim(),
-        email: formData.email.trim(),
-        password: formData.password,
-        name: formData.name.trim(),
-        department: formData.department.trim(),
-        year: parseInt(formData.year)
-      };
-      
-      await register(userData);
-      // Registration successful - redirect to home
-      navigate('/');
-    } catch (error) {
-      setError(error.message || 'Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (!validateForm()) return;
+
+  setIsLoading(true);
+
+  try {
+    const payload = {
+      userid: crypto.randomUUID(),        // generate unique user id
+      username: formData.username.trim(),
+      name: formData.name.trim(),
+      college: "Unknown",                 // or add input later
+      password: formData.password,
+      department: formData.department.trim(),
+      year: Number(formData.year),
+      email: formData.email.trim(),
+      skills: [],
+      verified: false,
+      teams: [],
+      linkdin_url: ""
+    };
+
+    const response = await API.post("/signup", payload);
+
+    console.log(response.data);
+    navigate("/"); // success → home
+
+  } catch (err) {
+    console.error(err);
+    setError(
+      err.response?.data?.detail ||
+      "Registration failed. Please try again."
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);

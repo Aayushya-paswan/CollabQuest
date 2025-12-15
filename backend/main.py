@@ -1,6 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # React app
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 from database import database
 class details(BaseModel):
@@ -17,7 +27,6 @@ class details(BaseModel):
         teams: list = None
         linkdin_url: str
         
-app = FastAPI()
 
 @app.post("/signup")
 def read_root(details: details):
@@ -38,12 +47,27 @@ def read_root(details: details):
     return {"message": "User added successfully"}
 
 
-@app.get("/login")
-def say_hello(username: str, password: str):
-    user = database.get_user_by_username(username)
-    if user and user["password"] == password:
-        return {"message": "Login successful", "user_id": user["user_id"]}
-    else:
-        return {"message": "Invalid username or password"}
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
+    
+@app.post("/login")
+def login_user(data: LoginRequest):
+    print("LOGIN REQUEST:", data.username, data.password)
+
+    user = database.get_user_by_username(data.username)
+    print("USER FROM DB:", user)
+
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    if user["password"] != data.password:
+        raise HTTPException(status_code=401, detail="Wrong password")
+
+    return {
+        "message": "Login successful",
+        "user_id": user["user_id"],
+        "username": user["username"]
+    }
 

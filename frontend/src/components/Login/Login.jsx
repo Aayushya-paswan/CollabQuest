@@ -25,21 +25,42 @@ const Login = () => {
     setError(''); // Clear error on input change
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-    
-    try {
-      await login(formData.username, formData.password);
-      // Login successful - redirect to home
-      navigate('/');
-    } catch (error) {
-      setError(error.message || 'Invalid username or password');
-    } finally {
-      setIsLoading(false);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError("");
+
+  try {
+    const res = await fetch("http://localhost:8000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: formData.username,
+        password: formData.password,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Invalid username or password");
     }
-  };
+
+    const data = await res.json();
+
+    console.log("Login success:", data);
+
+    // optional: store user
+    localStorage.setItem("user", JSON.stringify(data));
+
+    navigate("/");
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleSocialLogin = (provider) => {
     console.log(`Social login with ${provider}`);
