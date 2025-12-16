@@ -92,10 +92,10 @@ const Register = () => {
       department: formData.department.trim(),
       year: Number(formData.year),
       email: formData.email.trim(),
-      skills: [],
+      skills: {},               
       verified: false,
-      teams: [],
-      linkdin_url: ""
+      teams: {},
+      linkdin_url: "NONE"
     };
 
     const response = await API.post("/signup", payload);

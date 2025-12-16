@@ -8,7 +8,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 users_ref = db.reference("users")
-def add_user(user_id: str, college:str, linkdin_url: str, name: str, password: str,department: str, year: int,  username: str, email: str, skills: list = None, verified: bool = False, teams: list = None):
+def add_user(user_id: str, college:str, linkdin_url: str, name: str, password: str,department: str, year: int,  username: str, email: str, skills: dict = None, verified: bool = False, teams: list = None):
     """Add a new user to the database."""
     users_ref.child(user_id).set({
         "username": username,
@@ -18,9 +18,9 @@ def add_user(user_id: str, college:str, linkdin_url: str, name: str, password: s
         "department": department,
         "year": year,
         "email": email,
-        "skills": skills or [],
+        "skills": skills or {},
         "verified": verified,
-        "teams": teams or [],
+        "teams": teams or {},
         "linkdin_url": linkdin_url
     }) 
 
