@@ -2,11 +2,13 @@
 import google.generativeai as genai
 from fastapi import APIRouter
 from pydantic import BaseModel
+import os
+from dotenv import load_dotenv
 import json
 import cleanjson 
-
+load_dotenv()
 # Setup AI 
-GOOGLE_API_KEY = "AIzaSyAkbUUiflQbYMQ_KTp7V_YfAhbkWwj241Y" 
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") 
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-flash-latest')
 

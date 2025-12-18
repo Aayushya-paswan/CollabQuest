@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+import quiz
+import problem
 app = FastAPI()
 
 app.add_middleware(
@@ -10,7 +11,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    
 )
+app.include_router(quiz.router)
+app.include_router(problem.router)
 
 from database import database
 class details(BaseModel):
