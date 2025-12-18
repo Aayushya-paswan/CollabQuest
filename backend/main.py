@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+import quiz
+import problem
 app = FastAPI()
 
 app.add_middleware(
@@ -10,7 +11,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    
 )
+app.include_router(quiz.router)
+app.include_router(problem.router)
 
 from database import database
 class details(BaseModel):
@@ -70,29 +74,3 @@ def login_user(data: LoginRequest):
         "user_id": user["user_id"],
         "username": user["username"]
     }
-
-
-class UserProfileRequest(BaseModel):
-    username: str  
- 
-@app.post("/get_user_profile")
-def get_user_profile(data: UserProfileRequest):
-    user = database.get_user_by_username(data.username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    user_profile = {
-        "user_id": user["user_id"],
-        "username": user["username"],
-        "name": user["name"],
-        "college": user["college"],
-        "department": user["department"],
-        "year": user["year"],
-        "email": user["email"],
-        "skills": user["skills"],
-        "verified": user["verified"],
-        "teams": user["teams"],
-        "linkdin_url": user["linkdin_url"]
-    }
-    
-    return user_profile
