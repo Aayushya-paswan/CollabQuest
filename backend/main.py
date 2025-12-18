@@ -70,6 +70,3 @@ def login_user(data: LoginRequest):
         "user_id": user["user_id"],
         "username": user["username"]
     }
-
-
-
