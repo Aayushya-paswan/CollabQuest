@@ -72,4 +72,27 @@ def login_user(data: LoginRequest):
     }
 
 
-
+class UserProfileRequest(BaseModel):
+    username: str  
+ 
+@app.post("/get_user_profile")
+def get_user_profile(data: UserProfileRequest):
+    user = database.get_user_by_username(data.username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_profile = {
+        "user_id": user["user_id"],
+        "username": user["username"],
+        "name": user["name"],
+        "college": user["college"],
+        "department": user["department"],
+        "year": user["year"],
+        "email": user["email"],
+        "skills": user["skills"],
+        "verified": user["verified"],
+        "teams": user["teams"],
+        "linkdin_url": user["linkdin_url"]
+    }
+    
+    return user_profile
