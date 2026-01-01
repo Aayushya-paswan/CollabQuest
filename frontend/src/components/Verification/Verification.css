@@ -1,0 +1,12 @@
+.verification-page { padding: 24px; }
+.verification-hero { margin-bottom: 16px; }
+.verification-list .skill-grid { display:flex; gap:12px; flex-wrap:wrap; }
+.skill-card { border:1px solid #ddd; padding:12px; border-radius:6px; width:180px; }
+.skill-name { font-weight:600; }
+.skill-status { margin:8px 0; color:#666; }
+.test-section { margin-top:20px; }
+.question { margin-bottom:12px; padding:8px; border-bottom:1px solid #eee; }
+.qtext { font-weight:600; }
+.options label { display:block; margin:6px 0; }
+.test-actions { margin-top:12px; }
+.result { margin-top:12px; padding:12px; background:#f7f7f7; border-radius:6px; }

@@ -1,0 +1,96 @@
+import google.generativeai as genai
+import json
+import os
+import traceback
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+def get_compatibility_score(member1_skills, member2_skills, api_key=GOOGLE_API_KEY):
+    """
+    Calculate compatibility score (0-100) between two members based on their skills.
+    
+    Args:
+        member1_skills: dict or list of skills
+        member2_skills: dict or list of skills
+        api_key: Google Gemini API key (or set GOOGLE_API_KEY env var)
+    
+    Returns:
+        Compatibility score (0-100) and brief explanation
+    """
+    try:
+        # Convert to lists if dict
+        if isinstance(member1_skills, dict):
+            skills1 = list(member1_skills.keys())
+        else:
+            skills1 = member1_skills or []
+            
+        if isinstance(member2_skills, dict):
+            skills2 = list(member2_skills.keys())
+        else:
+            skills2 = member2_skills or []
+        
+        # Ensure they're lists
+        if not isinstance(skills1, list):
+            skills1 = list(skills1) if skills1 else []
+        if not isinstance(skills2, list):
+            skills2 = list(skills2) if skills2 else []
+        
+        # If both have no skills, use fallback
+        if not skills1 and not skills2:
+            return 50, "Both users have no skills listed yet"
+        
+        # Try API-based scoring if API key exists
+        if api_key:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel("gemini-pro")
+                
+                skills1_str = ", ".join(str(s) for s in skills1) if skills1 else "No skills"
+                skills2_str = ", ".join(str(s) for s in skills2) if skills2 else "No skills"
+                
+                prompt = f"""
+    Rate team compatibility between these two people based on their skills.
+    Skills 1: {skills1_str}
+    Skills 2: {skills2_str}
+    
+    Return ONLY a JSON with format: {{"score": number 0-100, "reason": "brief explanation"}}
+    Consider: skill overlap, complementarity, and team synergy.
+    """
+                
+                response = model.generate_content(prompt)
+                result = json.loads(response.text.strip())
+                return int(result["score"]), str(result["reason"])
+            except Exception as api_err:
+                print(f"API error: {api_err}, using fallback")
+        
+        # Fallback calculation
+        common_skills = len(set(skills1) & set(skills2))
+        total_unique = len(set(skills1) | set(skills2))
+        
+        if total_unique > 0:
+            similarity = common_skills / total_unique if total_unique > 0 else 0
+            score = 40 + (similarity * 40) + (len(skills1) * 2.5 + len(skills2) * 2.5)
+            score = max(0, min(100, score))
+            reason = f"{common_skills} common skills out of {total_unique} total"
+        else:
+            score = 50
+            reason = "No skills provided"
+        
+        return round(score, 1), reason
+    except Exception as e:
+        print(f"Critical error in get_compatibility_score: {e}")
+        traceback.print_exc()
+        return 50, f"Error: {str(e)}"
+
+# Example usage:
+if __name__ == "__main__":
+    # Set your API key
+    os.environ["GOOGLE_API_KEY"] = "your_api_key_here"
+    
+    # Example skills
+    alice = {"Python": 5, "ML": 4, "Data Analysis": 3}
+    bob = {"Python": 3, "Frontend": 4, "UI/UX": 5}
+    
+    score, reason = get_compatibility_score(alice, bob)
+    print(f"Compatibility Score: {score}/100")
+    print(f"Reason: {reason}")

@@ -1,0 +1,17 @@
+.partners-page { padding: 16px; }
+.partners-hero { margin-bottom: 12px }
+.partners-controls .control-row { display:flex; gap:8px; align-items:center }
+.partners-list { display:flex; flex-direction:column; gap:12px; margin-top:12px }
+.partner-card { display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #eee; border-radius:8px; background: #fff }
+.partner-card .left { display:flex; gap:12px; align-items:center }
+.avatar { width:56px; height:56px; border-radius:28px; background:#4a90e2; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700 }
+.info .name { font-weight:700 }
+.score { font-size:20px; font-weight:800 }
+.actions { display:flex; gap:8px; margin-top:6px }
+.muted { color:#6b7280 }
+.empty { color:#444; padding:12px }
+.loading { color:#444; padding:12px }
+.error { color:#b91c1c; padding:12px }
+@media (min-width:900px) {
+  .partners-page { padding:24px }
+}
