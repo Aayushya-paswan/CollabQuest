@@ -1,6 +1,6 @@
  CollabQuest – Full Stack App
 
-CollabQuest is a platform to discover coding problems, explore developers, and collaborate via skills, built using React (Vite) and FastAPI.
+CollabQuest is a platform to discover coding problems, explore developers, and collaborate via skills, built using React for frontend and FastAPI for backend.
 
 ✨ Features
 
@@ -11,14 +11,14 @@ CollabQuest is a platform to discover coding problems, explore developers, and c
 5) Login / Signup with backend
 6) Fully responsive UI
 
- Tech Stack
+--> Tech Stack
 
 Frontend: React + Vite
 Backend: FastAPI
 State: Context API
-Database: firebase
+Database: FIREBASE
 Compatibility score: hugging face transformers model(AI)
-
+questions for skill verification : Gemini API
 Styling: CSS (Poppins, gradients)
 
 ⚙️ How to Run Locally
